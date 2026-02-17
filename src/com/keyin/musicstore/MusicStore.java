@@ -7,15 +7,46 @@ public class MusicStore {
     private String musicStoreAddress;
     private String musicStorePhoneNumber;
     private ArrayList<Product> products;
+    private ArrayList<Customer> customers;
+    private ArrayList<Invoice> invoices;
+    private ArrayList<Employee> employees;
+
 
     public MusicStore(String musicStoreName, String musicStoreAddress, String musicStorePhoneNumber) {
         this.musicStoreName = musicStoreName;
         this.musicStoreAddress = musicStoreAddress;
         this.musicStorePhoneNumber = musicStorePhoneNumber;
         products = new ArrayList<>();
+        customers = new ArrayList<>();
+        invoices = new ArrayList<>();
+        employees = new ArrayList<>();
     }
 
     public MusicStore() {
+    }
+
+    public ArrayList<Employee> getEmployees() {
+        return employees;
+    }
+
+    public void setEmployees(ArrayList<Employee> employees) {
+        this.employees = employees;
+    }
+
+    public ArrayList<Customer> getCustomers() {
+        return customers;
+    }
+
+    public void setCustomers(ArrayList<Customer> customers) {
+        this.customers = customers;
+    }
+
+    public ArrayList<Invoice> getInvoices() {
+        return invoices;
+    }
+
+    public void setInvoices(ArrayList<Invoice> invoices) {
+        this.invoices = invoices;
     }
 
     public String getMusicStoreName() {
@@ -54,6 +85,37 @@ public class MusicStore {
     public void addProduct(Product product){
         products.add(product);
         System.out.println("Product added successfully!");
+    }
+
+    public void addCustomer(Customer customer){
+        System.out.println("Customer added successfully!");
+        customers.add(customer);
+    }
+    public void removeCustomer(Customer customer){
+        System.out.println( "Customer removed successfully :( ");
+        customers.remove(customer);
+    }
+    public void addProductToCustomerHistory(Product product, Customer customer){
+        System.out.println("Product added to customer history successfully!");
+        customer.addProductToHistory(product);
+    }
+    public void addEmployee(Employee employee){
+        employees.add(employee);
+    }
+    public void removeEmployee(Employee employee){
+        employees.remove(employee);
+    }
+
+    public void printCustomerList(){
+        for (Customer customer: customers){
+            System.out.printf("Customer Name: " + customer.getFirstName() + " " + customer.getLastName() + "\n");
+            System.out.println("Customer Email Address: " + customer.getEmail());
+            System.out.println("Product History: ");
+            for (Product product: customer.getProductHistory()){
+                System.out.println( "-" + product.getProductName() + " $"+product.getProductPrice());
+
+            }
+        }
     }
 
     // Print Method
@@ -103,19 +165,85 @@ public class MusicStore {
         }
     }
 
-    public void sellProduct(String productName, int quantity){
-        double totalPrice;
-        for (Product product: products){
-            if (product.getProductName().equalsIgnoreCase(productName)){
-                product.setQuantityInStock(product.getQuantityInStock()-quantity);
-                totalPrice = product.getProductPrice()*quantity;
-                System.out.println("Product sold successfully!");
-                System.out.println("Total Price: "+totalPrice);
-                break;
+    public void sellProduct(Customer customer, Product product, int quantity,Employee employee){
+        int invoiceId = invoices.size()+1;
+        // Update Product Quantity
+        if(product.getQuantityInStock() < quantity) System.out.println("Not enough stock to sell!");
+
+        product.setQuantityInStock(product.getQuantityInStock() - quantity);
+
+        Invoice invoice = new Invoice(invoiceId, customer, employee, product.getProductPrice() * quantity);
+
+        // add invoice to list of invoices for the store
+        invoices.add(invoice);
+
+    }
+
+    public void sellProductExample2(String customerEmail, String productName, int quantity, String employeeName){
+        Customer customer = new Customer();
+        Product product = new Product();
+        Employee employee = new Employee();
+        for(Customer customerSearch: customers){
+            if(customer.getEmail().equalsIgnoreCase(customerEmail)){
+                customerSearch = customer;
             }
+        }
+
+        for(Product productSearch: products){
+            if(productSearch.getProductName().equalsIgnoreCase(productName)){
+                product = productSearch;
+            }
+        }
+        for (Employee employeeSearch: employees){
+            if (employeeSearch.getFirstName().equalsIgnoreCase(employeeName)){
+                employee = employeeSearch;
+            }
+        }
+
+        sellProduct(customer, product, quantity, employee);
+
+
+    }
+
+    public void printCustomerHistoryByEmail(String email){
+        for(Customer customer: customers){
+            if(customer.getEmail().equalsIgnoreCase(email)){
+                System.out.println("Customer History For: " + customer.getFirstName() + " " + customer.getLastName());
+                for(Product product: customer.getProductHistory()){
+                    System.out.println("-"+product.getProductName()+" $"+product.getProductPrice());
+                }
+            }
+            else System.out.println("Customer not found!");
         }
     }
 
+    public void getTotalCustomerSpend(String email){
+        double total = 0;
+        Customer customer = new Customer();
+        for(Customer customer1: customers){
+            if(customer1.getEmail().equalsIgnoreCase(email)){
+                customer = customer1;
+                for(Product product: customer.getProductHistory()){
+                    total += product.getProductPrice();
+                }
+            }
+        }
+        System.out.println("Total Spend For Customer: " + customer.getFirstName()  + " $" + total);
+    }
+
+    public void getTotalStoreInventoryValue(){
+        double total = 0;
+        for(Product product: products){
+            int quantityInStock = product.getQuantityInStock();
+            if(quantityInStock <= 0) continue;
+
+            total += product.getProductPrice() * quantityInStock;
+
+        }
+
+        System.out.printf("Total For Inventory: $%.2f%n", total);
+
+    }
 
 
     @Override
@@ -125,6 +253,13 @@ public class MusicStore {
                 ", musicStoreAddress='" + musicStoreAddress + '\'' +
                 ", musicStorePhoneNumber='" + musicStorePhoneNumber + '\'' +
                 ", products=" + products +
+                ", customers=" + customers +
+                ", invoices=" + invoices +
                 '}';
+    }
+
+    public void removeProductFromCustomer(Product product, Customer customer) {
+        System.out.println("Product removed from customer history successfully:(");
+        customer.removeProductFromHistory(product);
     }
 }

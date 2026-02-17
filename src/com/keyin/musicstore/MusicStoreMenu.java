@@ -25,6 +25,30 @@ public class MusicStoreMenu {
 
         musicStore.printInventory();
 
+        Customer customer = new Customer(1,"Jordan","Harrison","j_k@j.com");
+        musicStore.addCustomer(customer);
+//        musicStore.removeCustomer(customer);
+        // Added 3 Products
+        musicStore.addProductToCustomerHistory(guitar,customer);
+        musicStore.addProductToCustomerHistory(banjo,customer);
+        musicStore.addProductToCustomerHistory(product2,customer);
+//        musicStore.printCustomerList();
+        // Remove One Product
+        musicStore.removeProductFromCustomer(product2,customer);
+
+        // Expect 2 products in history
+//        musicStore.printCustomerList();
+
+        musicStore.printCustomerHistoryByEmail("j_k@j.com");
+        musicStore.getTotalCustomerSpend("j_k@j.com");
+
+        musicStore.getTotalStoreInventoryValue();
+
+
+
+
+
+
 
     }
 }
